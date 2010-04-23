@@ -1,0 +1,10 @@
+.classpath
+.project
+.settings
+bin/
+war/OswCore
+war/org.w3c
+war/WEB-INF/classes
+war/WEB-INF/lib/gwt-servlet.jar
+tomcat/
+www-test/

@@ -1,0 +1,141 @@
+Index: emite/src/test/java/com/calclab/emite/testing/MockedSession.java
+===================================================================
+--- emite/src/test/java/com/calclab/emite/testing/MockedSession.java	(revision 1428)
++++ emite/src/test/java/com/calclab/emite/testing/MockedSession.java	(working copy)
+@@ -190,4 +190,9 @@
+ 	}
+ 	return isContained;
+     }
++
++	@Override
++	public String getSessionId() {
++		return "abcdefg";
++	}
+ }
+Index: emite/src/test/java/com/calclab/emiteuimodule/client/selenium/EmiteUISeleniumLoginLogoutTest.java
+===================================================================
+--- emite/src/test/java/com/calclab/emiteuimodule/client/selenium/EmiteUISeleniumLoginLogoutTest.java	(revision 1428)
++++ emite/src/test/java/com/calclab/emiteuimodule/client/selenium/EmiteUISeleniumLoginLogoutTest.java	(working copy)
+@@ -1,10 +1,12 @@
+ package com.calclab.emiteuimodule.client.selenium;
+ 
++import org.junit.Test;
+ 
++
+ public class EmiteUISeleniumLoginLogoutTest {
+ 
+-//    @Test
+-//    public void testOnlineAndOffline() throws Exception {
++    @Test
++    public void testOnlineAndOffline() throws Exception {
+ //	final DefaultSelenium selenium = createSeleniumClient("http://localhost:4444/");
+ //	selenium.start();
+ //
+@@ -55,5 +57,5 @@
+ //
+ //	// this is a problem... platform dependence ...
+ //	return new DefaultSelenium("localhost", 4441, "*chrome /usr/lib/firefox/firefox-2-bin", url);
+-//    }
++    }
+ }
+Index: emite/src/main/java/com/calclab/emite/im/client/roster/RosterItem.java
+===================================================================
+--- emite/src/main/java/com/calclab/emite/im/client/roster/RosterItem.java	(revision 1428)
++++ emite/src/main/java/com/calclab/emite/im/client/roster/RosterItem.java	(working copy)
+@@ -81,9 +81,9 @@
+ 	return subscriptionState;
+     }
+ 
+-    private final ArrayList<String> groups;
+     private final XmppURI jid;
+-    private final String name;
++    private ArrayList<String> groups;
++    private String name;
+     private String status;
+     private Presence.Show show;
+ 
+@@ -110,6 +110,10 @@
+ 	return groups;
+     }
+ 
++    public void setGroups(List<String> grous) {
++    	this.groups = groups;
++    }
++    
+     /**
+      * Obtain the JID of the roster item
+      * 
+@@ -123,6 +127,10 @@
+     public String getName() {
+ 	return name;
+     }
++    
++    public void setName(String name) {
++    	this.name = name;
++    }
+ 
+     public Presence.Show getShow() {
+ 	return show;
+Index: emite/src/main/java/com/calclab/emite/core/client/xmpp/session/Session.java
+===================================================================
+--- emite/src/main/java/com/calclab/emite/core/client/xmpp/session/Session.java	(revision 1428)
++++ emite/src/main/java/com/calclab/emite/core/client/xmpp/session/Session.java	(working copy)
+@@ -99,6 +99,13 @@
+      * @return a session.state enum type
+      */
+     public abstract State getState();
++    
++    /**
++     * Returns the current session ID (SID)
++     * 
++     * @return the current session id
++     */
++    public abstract String getSessionId();
+ 
+     /**
+      * Answer if is logged in or not
+Index: emite/src/main/java/com/calclab/emite/core/client/xmpp/session/SessionImpl.java
+===================================================================
+--- emite/src/main/java/com/calclab/emite/core/client/xmpp/session/SessionImpl.java	(revision 1428)
++++ emite/src/main/java/com/calclab/emite/core/client/xmpp/session/SessionImpl.java	(working copy)
+@@ -207,4 +207,14 @@
+ 	setState(Session.State.loggedIn);
+     }
+ 
++	@Override
++	public String getSessionId() {
++		StreamSettings settings = connection.getStreamSettings();
++		if (settings != null) {
++			return settings.sid;
++		} else {
++			return null;
++		}
++	}
++
+ }
+Index: emite/src/main/java/com/calclab/emite/core/client/bosh/Connection.java
+===================================================================
+--- emite/src/main/java/com/calclab/emite/core/client/bosh/Connection.java	(revision 1428)
++++ emite/src/main/java/com/calclab/emite/core/client/bosh/Connection.java	(working copy)
+@@ -51,5 +51,7 @@
+     public abstract void send(final IPacket packet);
+ 
+     public abstract void setSettings(BoshSettings settings);
++    
++	public abstract StreamSettings getStreamSettings();
+ 
+ }
+Index: emite/src/main/java/com/calclab/emite/core/client/bosh/BoshConnection.java
+===================================================================
+--- emite/src/main/java/com/calclab/emite/core/client/bosh/BoshConnection.java	(revision 1428)
++++ emite/src/main/java/com/calclab/emite/core/client/bosh/BoshConnection.java	(working copy)
+@@ -285,4 +285,9 @@
+ 	    send(request);
+ 	}
+     }
++
++	@Override
++	public StreamSettings getStreamSettings() {
++		return stream;
++	}
+ }
