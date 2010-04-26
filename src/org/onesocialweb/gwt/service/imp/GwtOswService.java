@@ -609,7 +609,9 @@ public class GwtOswService implements OswService {
 		// Actually.. someone cares
 		queryCache.addQuery("subscriptions_" + jid);
 		IQ iq = new IQ(IQ.Type.get);
-		iq.setTo(XmppURI.jid(jid));
+		if (!getUserBareJID().equals(jid)) {
+			iq.setTo(XmppURI.jid(jid));
+		}
 		IPacket pubsubElement = iq.addChild("pubsub",
 				"http://jabber.org/protocol/pubsub");
 		IPacket itemsElement = pubsubElement.addChild("subscriptions",
@@ -694,7 +696,9 @@ public class GwtOswService implements OswService {
 		// Actually.. someone cares
 		queryCache.addQuery("subscribers_" + jid);
 		IQ iq = new IQ(IQ.Type.get);
-		iq.setTo(XmppURI.jid(jid));
+		if (!getUserBareJID().equals(jid)) {
+			iq.setTo(XmppURI.jid(jid));	
+		}
 		IPacket pubsubElement = iq.addChild("pubsub",
 				"http://jabber.org/protocol/pubsub");
 		IPacket itemsElement = pubsubElement.addChild("subscribers",
