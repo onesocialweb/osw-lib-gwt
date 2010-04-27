@@ -14,7 +14,7 @@
  *  limitations under the License.
  *    
  */
-package org.onesocialweb.gwt.xml;
+package org.onesocialweb.gwt.util;
 
 /**
  * Based on this post on stack overflow
@@ -24,7 +24,7 @@ package org.onesocialweb.gwt.xml;
  * @author http://stackoverflow.com/users/53897/thorbjorn-ravn-andersen
  * 
  */
-public class XMLHelper {
+public class HtmlHelper {
 
 	/**
 	 * Returns the string where all non-ascii and <, &, > are encoded as numeric
