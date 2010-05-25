@@ -14,7 +14,7 @@
  *  limitations under the License.
  *    
  */
-package org.onesocialweb.gwt.xml;
+package org.onesocialweb.gwt.util;
 
 /**
  * Based on this post on stack overflow
@@ -24,7 +24,7 @@ package org.onesocialweb.gwt.xml;
  * @author http://stackoverflow.com/users/53897/thorbjorn-ravn-andersen
  * 
  */
-public class XMLHelper {
+public class HtmlHelper {
 
 	/**
 	 * Returns the string where all non-ascii and <, &, > are encoded as numeric
@@ -48,12 +48,18 @@ public class XMLHelper {
 		for (int i = 0; i < originalString.length(); i++) {
 			char ch = originalString.charAt(i);
 
-			// boolean controlCharacter = ch < 32;
-			// boolean unicodeButNotAscii = ch > 126;
-			boolean characterWithSpecialMeaningInXML = ch == '<' || ch == '&'
-					|| ch == '>';
-
-			if (characterWithSpecialMeaningInXML) {
+			// TODO This is a dirty hack and could be improved
+			if (ch == '&') {
+				if (i<originalString.length()-1) {
+					char next = originalString.charAt(i+1);
+					if (next == '#') {
+						stringBuffer.append(ch);
+						continue;
+					}
+				}
+			}
+			
+			if (ch == '<' || ch == '>' || ch == '&') {
 				stringBuffer.append("&#" + (int) ch + ";");
 				anyCharactersProtected = true;
 			} else {

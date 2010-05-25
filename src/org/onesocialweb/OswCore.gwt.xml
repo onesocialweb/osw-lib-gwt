@@ -8,6 +8,7 @@
   <inherits name="org.onesocialweb.Model"/>
   <inherits name='com.calclab.emite.core.EmiteCore'/>
   <inherits name='com.calclab.emite.im.EmiteIM'/>
+  <inherits name='java.Util'/>
   
   <!--  Additional settings -->
   <source path="gwt/" />
