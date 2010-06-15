@@ -49,8 +49,9 @@ public interface OswService {
 
 	public Stream<ActivityEntry> getActivities(String jid);
 
-	public void post(ActivityEntry entry,
-			RequestCallback<ActivityEntry> callback);
+	public void post(ActivityEntry entry, RequestCallback<ActivityEntry> callback);
+	
+	public void delete(String activityId, RequestCallback<Object> callback);
 
 	public void subscribe(String jid, RequestCallback<Object> callback);
 
