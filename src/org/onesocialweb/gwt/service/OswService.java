@@ -52,6 +52,8 @@ public interface OswService {
 	public void post(ActivityEntry entry, RequestCallback<ActivityEntry> callback);
 	
 	public void delete(String activityId, RequestCallback<Object> callback);
+	
+	public void update(ActivityEntry entry, RequestCallback<ActivityEntry> callback);
 
 	public void subscribe(String jid, RequestCallback<Object> callback);
 

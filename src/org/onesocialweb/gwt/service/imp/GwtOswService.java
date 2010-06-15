@@ -449,6 +449,36 @@ public class GwtOswService implements OswService {
 			}
 		});
 	}
+	
+	@Override
+	public void update(ActivityEntry entry, final RequestCallback<ActivityEntry> callback) {
+		
+		ActivityDomWriter writer = new GwtActivityDomWriter();
+		Document document = new DocumentAdapter(XMLParser.createDocument());
+		Element element = writer.toElement(entry, document);
+		IQ iq = new IQ(IQ.Type.set);
+		IPacket pubsubElement = iq.addChild("pubsub",
+				"http://jabber.org/protocol/pubsub");
+		IPacket publishElement = pubsubElement.addChild("publish",
+				"http://jabber.org/protocol/pubsub");
+		publishElement.setAttribute("node", "urn:xmpp:microblog:0");
+		IPacket itemElement = publishElement.addChild("item",
+				"http://jabber.org/protocol/pubsub");
+		((Packet) itemElement).addChild(new GWTPacket(
+				((ElementAdapter) element).getGwtElement()));
+		
+		session.sendIQ("osw", iq, new Listener<IPacket>() {
+
+			public void onEvent(IPacket packet) {
+				// Check if no error
+				if (IQ.isSuccess(packet)) {
+					callback.onSuccess(null);
+				} else {
+					callback.onFailure();
+				}
+			}
+		});
+	}
 
 	@Override
 	public void subscribe(final String jid,
@@ -844,9 +874,16 @@ public class GwtOswService implements OswService {
 								Element element = new ElementAdapter(i_packet.getElement());
 								ActivityDomReader reader = new GwtActivityDomReader();
 								ActivityEntry activity = reader.readEntry(element);
-								inbox.addItem(activity);
-
-								Log.debug("Received a new activity message: "	+ activity.getId());
+								// if the activity is already in the inbox, then it was an update...
+								ActivityEntry existingActivity=inbox.getItem(activity.getId());
+								if (existingActivity!=null) {
+									inbox.updateItem(activity);
+									Log.debug("Updated the activity : "	+ activity.getId());
+								}
+								else {								
+									inbox.addItem(activity);
+									Log.debug("Received a new activity message: "	+ activity.getId());
+								}
 							}
 							else if (item.getName().equalsIgnoreCase("retract")){
 								
@@ -854,10 +891,10 @@ public class GwtOswService implements OswService {
 								if (activityId == null)
 									continue;
 								
-								ActivityEntry entry =inbox.getItem(activityId);
-								inbox.deleteItem(entry);
-								
 								// remove item from inbox implementation ...
+								ActivityEntry entry =inbox.getItem(activityId);
+								inbox.deleteItem(entry);								
+								
 								Log.debug("Received a new retract message: " + activityId);
 							}
 						}
