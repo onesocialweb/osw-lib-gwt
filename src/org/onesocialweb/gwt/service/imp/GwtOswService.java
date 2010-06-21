@@ -290,7 +290,9 @@ public class GwtOswService implements OswService {
 	public Stream<ActivityEntry> getActivities(String jid) {
 		// Hit the cache
 		if (cache.containsKey("activities_" + jid)) {
-			return (GwtActivities) cache.get("activities_" + jid);
+			Stream<ActivityEntry> activities = (GwtActivities) cache.get("activities_" + jid);
+			activities.refresh(null);
+			return activities;
 		}
 
 		// Create, cache, refresh and return
