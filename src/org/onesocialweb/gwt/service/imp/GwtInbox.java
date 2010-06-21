@@ -140,6 +140,18 @@ public class GwtInbox implements Stream<ActivityEntry> {
 		helper.fireEvent(new InboxEvent(Type.added, items));
 	}
 	
+	public void updateItem(ActivityEntry item) {
+		ActivityEntry previousActivity = getItem(item.getId());
+		int index= entries.indexOf(previousActivity);
+		
+		entries.remove(index);
+		entries.add(index, item);
+		
+		List<ActivityEntry> items = new ArrayList<ActivityEntry>();
+		items.add(item);
+		helper.fireEvent(new InboxEvent(Type.refreshed, items));
+	}
+	
 	public void deleteItem(ActivityEntry item){
 		entries.remove(item);		
 		List<ActivityEntry> items = new ArrayList<ActivityEntry>();
