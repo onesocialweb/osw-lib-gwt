@@ -24,7 +24,7 @@ import com.google.gwt.i18n.client.TimeZone;
 public class AtomHelper {
 
 	public static final DateTimeFormat pattern = DateTimeFormat
-			.getFormat("yyy-MM-dd'T'HH:mm:ss.SSS");
+			.getFormat("yyy-MM-dd'T'HH:mm:ss.SSSZZZ");
 
 	public static Date parseDate(String date) {
 		try {
@@ -38,8 +38,12 @@ public class AtomHelper {
 		}
 	}
 
-	public static String formatDate(Date date) {
+	public static String formatDateUTC(Date date) {
 		String result = pattern.format(date, TimeZone.createTimeZone(0));
 		return result + "Z";
+	}
+	
+	public static String formatDate(Date date) {
+		return pattern.format(date);
 	}
 }
