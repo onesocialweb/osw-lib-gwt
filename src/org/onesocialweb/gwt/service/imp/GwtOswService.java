@@ -290,7 +290,9 @@ public class GwtOswService implements OswService {
 	public Stream<ActivityEntry> getActivities(String jid) {
 		// Hit the cache
 		if (cache.containsKey("activities_" + jid)) {
-			return (GwtActivities) cache.get("activities_" + jid);
+			Stream<ActivityEntry> activities = (GwtActivities) cache.get("activities_" + jid);
+			activities.refresh(null);
+			return activities;
 		}
 
 		// Create, cache, refresh and return
@@ -412,6 +414,61 @@ public class GwtOswService implements OswService {
 				"http://jabber.org/protocol/pubsub");
 		((Packet) itemElement).addChild(new GWTPacket(
 				((ElementAdapter) element).getGwtElement()));
+		session.sendIQ("osw", iq, new Listener<IPacket>() {
+
+			public void onEvent(IPacket packet) {
+				// Check if no error
+				if (IQ.isSuccess(packet)) {
+					callback.onSuccess(null);
+				} else {
+					callback.onFailure();
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void delete(String activityId, final RequestCallback<Object> callback){
+				
+		IQ iq = new IQ(IQ.Type.set);
+		
+		IPacket pubsubElement = iq.addChild("pubsub","http://jabber.org/protocol/pubsub");
+		IPacket retractElement = pubsubElement.addChild("retract", "http://jabber.org/protocol/pubsub");
+		retractElement.setAttribute("node", "urn:xmpp:microblog:0");
+		IPacket itemElement = retractElement.addChild("item", "http://jabber.org/protocol/pubsub");
+		itemElement.setAttribute("id", activityId);
+		
+		
+		session.sendIQ("osw", iq, new Listener<IPacket>() {
+
+			public void onEvent(IPacket packet) {
+				// Check if no error
+				if (IQ.isSuccess(packet)) {
+					callback.onSuccess(null);
+				} else {
+					callback.onFailure();
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void update(ActivityEntry entry, final RequestCallback<ActivityEntry> callback) {
+		
+		ActivityDomWriter writer = new GwtActivityDomWriter();
+		Document document = new DocumentAdapter(XMLParser.createDocument());
+		Element element = writer.toElement(entry, document);
+		IQ iq = new IQ(IQ.Type.set);
+		IPacket pubsubElement = iq.addChild("pubsub",
+				"http://jabber.org/protocol/pubsub");
+		IPacket publishElement = pubsubElement.addChild("publish",
+				"http://jabber.org/protocol/pubsub");
+		publishElement.setAttribute("node", "urn:xmpp:microblog:0");
+		IPacket itemElement = publishElement.addChild("item",
+				"http://jabber.org/protocol/pubsub");
+		((Packet) itemElement).addChild(new GWTPacket(
+				((ElementAdapter) element).getGwtElement()));
+		
 		session.sendIQ("osw", iq, new Listener<IPacket>() {
 
 			public void onEvent(IPacket packet) {
@@ -811,19 +868,37 @@ public class GwtOswService implements OswService {
 					// Parse the packet and store the notifications
 					for (IPacket item : itemsPacket.getChildren()) {
 						if (item instanceof GWTPacket) {
-							GWTPacket i_packet = (GWTPacket) item
-									.getFirstChild("entry");
-							if (i_packet == null)
-								continue;
+							if (item.getName().equalsIgnoreCase("item")){
+								GWTPacket i_packet = (GWTPacket) item.getFirstChild("entry");
+								if (i_packet == null)
+									continue;
 
-							Element element = new ElementAdapter(i_packet
-									.getElement());
-							ActivityDomReader reader = new GwtActivityDomReader();
-							ActivityEntry activity = reader.readEntry(element);
-							inbox.addItem(activity);
-
-							Log.debug("Received a new activity message: "
-									+ activity.getId());
+								Element element = new ElementAdapter(i_packet.getElement());
+								ActivityDomReader reader = new GwtActivityDomReader();
+								ActivityEntry activity = reader.readEntry(element);
+								// if the activity is already in the inbox, then it was an update...
+								ActivityEntry existingActivity=inbox.getItem(activity.getId());
+								if (existingActivity!=null) {
+									inbox.updateItem(activity);
+									Log.debug("Updated the activity : "	+ activity.getId());
+								}
+								else {								
+									inbox.addItem(activity);
+									Log.debug("Received a new activity message: "	+ activity.getId());
+								}
+							}
+							else if (item.getName().equalsIgnoreCase("retract")){
+								
+								String activityId = item.getAttribute("id");
+								if (activityId == null)
+									continue;
+								
+								// remove item from inbox implementation ...
+								ActivityEntry entry =inbox.getItem(activityId);
+								inbox.deleteItem(entry);								
+								
+								Log.debug("Received a new retract message: " + activityId);
+							}
 						}
 					}
 				}

@@ -34,6 +34,7 @@ public abstract class StreamEvent<T> implements Event {
 		this.type = type;
 		this.items = items;
 	}
+	
 
 	public List<T> getItems() {
 		return this.items;
