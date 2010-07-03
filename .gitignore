@@ -8,3 +8,5 @@ war/WEB-INF/classes
 war/WEB-INF/lib/gwt-servlet.jar
 tomcat/
 www-test/
+target/
+semantic.cache
