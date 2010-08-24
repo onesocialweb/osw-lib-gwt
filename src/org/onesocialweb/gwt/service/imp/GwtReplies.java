@@ -1,5 +1,5 @@
 /*
- *  Copyright 2010 Vodafone Group Services Ltd.
+ *  Copyright 2010 Openliven S.r.l
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -12,10 +12,9 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
- *  2010-08-09 Modified by Luca Faggioli Copyright 2010 Openliven S.r.l
- *  made a refactoring using GwtAbstractActivities
- *
+ *  
+ *  Author: Luca Faggioli (luca.faggioli (at) openliven (dot) com)
+ *    
  */
 package org.onesocialweb.gwt.service.imp;
 
@@ -42,13 +41,13 @@ import com.calclab.emite.core.client.xmpp.stanzas.XmppURI;
 import com.calclab.suco.client.Suco;
 import com.calclab.suco.client.events.Listener;
 
-public class GwtActivities extends GwtAbstractActivities implements Stream<ActivityEntry> {
+public class GwtReplies extends GwtAbstractActivities implements Stream<ActivityEntry> {
 
-
-	private final String jid;
-
-	public GwtActivities(String jid) {
-		this.jid = jid;
+	
+	private final String activityId;
+	
+	public GwtReplies(String activityId) {
+		this.activityId = activityId;
 	}
 
 
@@ -59,8 +58,10 @@ public class GwtActivities extends GwtAbstractActivities implements Stream<Activ
 				"http://jabber.org/protocol/pubsub");
 		IPacket itemsElement = pubsubElement.addChild("items",
 				"http://jabber.org/protocol/pubsub");
-		itemsElement.setAttribute("node", "urn:xmpp:microblog:0");
-		iq.setTo(XmppURI.jid(jid));
+		itemsElement.setAttribute("node", "http://onesocialweb.org/spec/1.0/replies");
+		IPacket itemElement = itemsElement.addChild(
+				"item", "http://jabber.org/protocol/pubsub");
+		itemElement.setAttribute("id", activityId);
 		session.sendIQ("osw", iq, new Listener<IPacket>() {
 
 			public void onEvent(IPacket packet) {

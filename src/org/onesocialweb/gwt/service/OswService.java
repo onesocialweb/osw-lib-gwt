@@ -13,6 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *    
+ *  2010-08-11 Modified by Luca Faggioli Copyright 2010 Openliven S.r.l
+ *  added getReplies()
+ *  
  */
 package org.onesocialweb.gwt.service;
 
@@ -89,5 +92,7 @@ public interface OswService {
 	public String getUserFullJID();
 
 	public Presence getPresence();
+	
+	public Stream<ActivityEntry> getReplies(String activityId);
 
 }
