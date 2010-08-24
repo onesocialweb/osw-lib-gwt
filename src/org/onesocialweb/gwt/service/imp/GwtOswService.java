@@ -12,7 +12,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *    
+ *
+ *  2010-08-11 Modified by Luca Faggioli Copyright 2010 Openliven S.r.l
+ *  implemented getReplies()
+ *
  */
 package org.onesocialweb.gwt.service.imp;
 
@@ -299,6 +302,15 @@ public class GwtOswService implements OswService {
 		GwtActivities activities = new GwtActivities(jid);
 		activities.refresh(null);
 		cache.put("activities_" + jid, activities);
+		return activities;
+	}
+
+
+	@Override
+	public Stream<ActivityEntry> getReplies(String activityId) {
+
+		GwtAbstractActivities activities = new GwtReplies(activityId);
+		activities.refresh(null);
 		return activities;
 	}
 
@@ -754,7 +766,7 @@ public class GwtOswService implements OswService {
 		queryCache.addQuery("subscribers_" + jid);
 		IQ iq = new IQ(IQ.Type.get);
 		if (!getUserBareJID().equals(jid)) {
-			iq.setTo(XmppURI.jid(jid));	
+			iq.setTo(XmppURI.jid(jid));
 		}
 		IPacket pubsubElement = iq.addChild("pubsub",
 				"http://jabber.org/protocol/pubsub");
