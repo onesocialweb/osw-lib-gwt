@@ -305,9 +305,9 @@ public class GwtOswService implements OswService {
 
 
 	@Override
-	public Stream<ActivityEntry> getReplies(String activityId) {
+	public Stream<ActivityEntry> getReplies(ActivityEntry activity) {
 
-		GwtAbstractActivities activities = new GwtReplies(activityId);
+		GwtAbstractActivities activities = new GwtReplies(activity);
 		activities.refresh(null);
 		return activities;
 	}
