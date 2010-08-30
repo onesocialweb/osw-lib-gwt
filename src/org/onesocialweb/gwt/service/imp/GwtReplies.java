@@ -44,10 +44,10 @@ import com.calclab.suco.client.events.Listener;
 public class GwtReplies extends GwtAbstractActivities implements Stream<ActivityEntry> {
 
 	
-	private final String activityId;
+	private final ActivityEntry activity;
 	
-	public GwtReplies(String activityId) {
-		this.activityId = activityId;
+	public GwtReplies(ActivityEntry activity) {
+		this.activity = activity;
 	}
 
 
@@ -61,7 +61,8 @@ public class GwtReplies extends GwtAbstractActivities implements Stream<Activity
 		itemsElement.setAttribute("node", "http://onesocialweb.org/spec/1.0/replies");
 		IPacket itemElement = itemsElement.addChild(
 				"item", "http://jabber.org/protocol/pubsub");
-		itemElement.setAttribute("id", activityId);
+		itemElement.setAttribute("id", activity.getId());
+		iq.setTo(XmppURI.uri(activity.getActor().getUri()));
 		session.sendIQ("osw", iq, new Listener<IPacket>() {
 
 			public void onEvent(IPacket packet) {

@@ -96,6 +96,6 @@ public interface OswService {
 
 	public Presence getPresence();
 	
-	public Stream<ActivityEntry> getReplies(String activityId);
+	public Stream<ActivityEntry> getReplies(ActivityEntry activity);
 
 }
