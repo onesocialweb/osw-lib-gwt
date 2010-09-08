@@ -890,13 +890,19 @@ public class GwtOswService implements OswService {
 								ActivityEntry activity = reader.readEntry(element);
 								// if the activity is already in the inbox, then it was an update...
 								ActivityEntry existingActivity=inbox.getItem(activity.getId());
-								if (existingActivity!=null) {
+								if (existingActivity!=null) {								
 									inbox.updateItem(activity);
 									Log.debug("Updated the activity : "	+ activity.getId());
 								}
-								else {								
-									inbox.addItem(activity);
-									Log.debug("Received a new activity message: "	+ activity.getId());
+								else {	
+									if ((activity.getParentId()!=null) && (activity.getParentId().length()!=0)){
+										// TO-DO
+										Log.debug("Received a new comment : "	+ activity.getId());
+									}
+									else { 
+										inbox.addItem(activity);
+										Log.debug("Received a new activity message: "	+ activity.getId());
+									}
 								}
 							}
 							else if (item.getName().equalsIgnoreCase("retract")){

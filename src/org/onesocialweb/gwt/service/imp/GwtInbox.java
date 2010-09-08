@@ -151,6 +151,7 @@ public class GwtInbox implements Stream<ActivityEntry> {
 		items.add(item);
 		helper.fireEvent(new InboxEvent(Type.refreshed, items));
 	}
+		
 	
 	public void deleteItem(ActivityEntry item){
 		entries.remove(item);		
