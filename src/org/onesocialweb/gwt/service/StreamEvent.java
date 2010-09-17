@@ -23,7 +23,7 @@ import org.onesocialweb.gwt.util.Event;
 public abstract class StreamEvent<T> implements Event {
 
 	public enum Type {
-		added, removed, cleared, refreshed
+		added, removed, cleared, refreshed, replied
 	};
 
 	private final List<T> items;

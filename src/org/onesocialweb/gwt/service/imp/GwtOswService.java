@@ -898,6 +898,7 @@ public class GwtOswService implements OswService {
 									if ((activity.getParentId()!=null) && (activity.getParentId().length()!=0)){
 										// TO-DO
 										Log.debug("Received a new comment : "	+ activity.getId());
+										inbox.addCommentToItem(activity.getParentId());
 									}
 									else { 
 										inbox.addItem(activity);

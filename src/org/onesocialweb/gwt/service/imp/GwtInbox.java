@@ -28,6 +28,9 @@ import org.onesocialweb.gwt.util.ObservableHelper;
 import org.onesocialweb.gwt.util.Observer;
 import org.onesocialweb.gwt.xml.ElementAdapter;
 import org.onesocialweb.model.activity.ActivityEntry;
+import org.onesocialweb.model.atom.AtomFactory;
+import org.onesocialweb.model.atom.AtomLink;
+import org.onesocialweb.model.atom.DefaultAtomFactory;
 import org.onesocialweb.xml.dom.ActivityDomReader;
 import org.w3c.dom.Element;
 
@@ -47,6 +50,8 @@ public class GwtInbox implements Stream<ActivityEntry> {
 	private final List<ActivityEntry> entries = new ArrayList<ActivityEntry>();
 
 	private boolean isReady = false;
+	
+	private final AtomFactory atomFactory = new DefaultAtomFactory();
 
 	@Override
 	public void refresh(final RequestCallback<List<ActivityEntry>> callback) {
@@ -151,6 +156,33 @@ public class GwtInbox implements Stream<ActivityEntry> {
 		items.add(item);
 		helper.fireEvent(new InboxEvent(Type.refreshed, items));
 	}
+	
+	public void addCommentToItem(String parentId){
+		ActivityEntry parentActivity = getItem(parentId);
+		int index= entries.indexOf(parentActivity);
+		entries.remove(index);
+		
+		//update the number of comments in the parent activity...
+				
+		if (parentActivity.hasReplies()){
+			AtomLink repliesLink= parentActivity.getRepliesLink();
+			int commentsCounter=repliesLink.getCount();
+			commentsCounter++;
+			parentActivity.removeLink(repliesLink);
+			repliesLink.setCount(commentsCounter);					
+			parentActivity.addLink(repliesLink);
+		} else
+		{
+			parentActivity.addLink(atomFactory.link(null, "replies", null, "application/atom+xml", 1));
+		}
+		entries.add(index, parentActivity);
+		
+		List<ActivityEntry> items = new ArrayList<ActivityEntry>();
+		items.add(parentActivity);
+		helper.fireEvent(new InboxEvent(Type.replied, items));	
+		
+	}
+
 		
 	
 	public void deleteItem(ActivityEntry item){
