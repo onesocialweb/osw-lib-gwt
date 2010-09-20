@@ -35,10 +35,10 @@ import org.onesocialweb.gwt.service.OswService;
 import org.onesocialweb.gwt.service.RequestCallback;
 import org.onesocialweb.gwt.service.Roster;
 import org.onesocialweb.gwt.service.RosterItem;
+import org.onesocialweb.gwt.service.RosterItem.Presence;
 import org.onesocialweb.gwt.service.Stream;
 import org.onesocialweb.gwt.service.UpdateCallback;
 import org.onesocialweb.gwt.service.UploadStatus;
-import org.onesocialweb.gwt.service.RosterItem.Presence;
 import org.onesocialweb.gwt.xml.DocumentAdapter;
 import org.onesocialweb.gwt.xml.ElementAdapter;
 import org.onesocialweb.model.acl.AclFactory;
@@ -72,8 +72,8 @@ import com.calclab.emite.core.client.xmpp.session.Session;
 import com.calclab.emite.core.client.xmpp.session.Session.State;
 import com.calclab.emite.core.client.xmpp.stanzas.IQ;
 import com.calclab.emite.core.client.xmpp.stanzas.Message;
-import com.calclab.emite.core.client.xmpp.stanzas.XmppURI;
 import com.calclab.emite.core.client.xmpp.stanzas.Presence.Show;
+import com.calclab.emite.core.client.xmpp.stanzas.XmppURI;
 import com.calclab.emite.im.client.presence.PresenceManager;
 import com.calclab.emite.im.client.presence.PresenceManagerImpl;
 import com.calclab.emite.im.client.roster.RosterImpl;
@@ -307,12 +307,13 @@ public class GwtOswService implements OswService {
 
 
 	@Override
-	public Stream<ActivityEntry> getReplies(ActivityEntry activity) {
+	public Stream<ActivityEntry> getReplies(ActivityEntry parentActivity) {
 
-		GwtAbstractActivities activities = new GwtReplies(activity);
+		GwtReplies activities = new GwtReplies(parentActivity.getId(), parentActivity.getActor().getUri());		
 		activities.refresh(null);
 		return activities;
 	}
+	
 
 	@Override
 	public void getRelations(final String jid,
@@ -897,8 +898,8 @@ public class GwtOswService implements OswService {
 								else {	
 									if ((activity.getParentId()!=null) && (activity.getParentId().length()!=0)){
 										// TO-DO
-										Log.debug("Received a new comment : "	+ activity.getId());
-										inbox.addCommentToItem(activity.getParentId());
+										Log.debug("Received a new comment : "	+ activity.getId());																		
+										inbox.addCommentToItem(activity);									
 									}
 									else { 
 										inbox.addItem(activity);

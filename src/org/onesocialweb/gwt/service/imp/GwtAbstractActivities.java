@@ -62,14 +62,12 @@ public abstract class GwtAbstractActivities implements Stream<ActivityEntry> {
 	public abstract void refresh(final RequestCallback<List<ActivityEntry>> callback);
 
 	@Override
-	public void registerEventHandler(
-			Observer<StreamEvent<ActivityEntry>> handler) {
+	public void registerEventHandler(Observer<StreamEvent<ActivityEntry>> handler) {
 		helper.registerEventHandler(handler);
 	}
 
 	@Override
-	public void unregisterEventHandler(
-			Observer<StreamEvent<ActivityEntry>> handler) {
+	public void unregisterEventHandler(Observer<StreamEvent<ActivityEntry>> handler) {
 		helper.unregisterEventHandler(handler);
 	}
 
@@ -78,7 +76,7 @@ public abstract class GwtAbstractActivities implements Stream<ActivityEntry> {
 		return isReady;
 	}
 
-	protected class ActivityEvent extends StreamEvent<ActivityEntry> {
+	public class ActivityEvent extends StreamEvent<ActivityEntry> {
 
 		public ActivityEvent(Type type, List<ActivityEntry> items) {
 			super(type, items);

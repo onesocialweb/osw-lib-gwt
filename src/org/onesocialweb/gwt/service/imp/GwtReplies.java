@@ -16,7 +16,9 @@
  *  Author: Luca Faggioli (luca.faggioli (at) openliven (dot) com)
  *    
  */
+
 package org.onesocialweb.gwt.service.imp;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,15 +43,25 @@ import com.calclab.emite.core.client.xmpp.stanzas.XmppURI;
 import com.calclab.suco.client.Suco;
 import com.calclab.suco.client.events.Listener;
 
-public class GwtReplies extends GwtAbstractActivities implements Stream<ActivityEntry> {
+public class GwtReplies implements Stream<ActivityEntry> {
 
+	private final ObservableHelper<StreamEvent<ActivityEntry>> helper = new ObservableHelper<StreamEvent<ActivityEntry>>();
+
+	private final Session session = Suco.get(Session.class);
+
+	private final List<ActivityEntry> entries = new ArrayList<ActivityEntry>();
+
+	private boolean isReady = false;	
 	
-	private final ActivityEntry activity;
+	private final String parentId;
 	
-	public GwtReplies(ActivityEntry activity) {
-		this.activity = activity;
+	private final String parentJID;
+	
+	
+	public GwtReplies(String parentId, String parentJID){
+		this.parentId=parentId;
+		this.parentJID=parentJID;
 	}
-
 
 	@Override
 	public void refresh(final RequestCallback<List<ActivityEntry>> callback) {
@@ -61,8 +73,8 @@ public class GwtReplies extends GwtAbstractActivities implements Stream<Activity
 		itemsElement.setAttribute("node", "http://onesocialweb.org/spec/1.0/replies");
 		IPacket itemElement = itemsElement.addChild(
 				"item", "http://jabber.org/protocol/pubsub");
-		itemElement.setAttribute("id", activity.getId());
-		iq.setTo(XmppURI.uri(activity.getActor().getUri()));
+		itemElement.setAttribute("id", parentId);
+		iq.setTo(XmppURI.uri(parentJID));
 		session.sendIQ("osw", iq, new Listener<IPacket>() {
 
 			public void onEvent(IPacket packet) {
@@ -97,9 +109,7 @@ public class GwtReplies extends GwtAbstractActivities implements Stream<Activity
 					isReady = true;
 
 					// Fire the event to the observer
-					helper
-							.fireEvent(new ActivityEvent(Type.refreshed,
-									entries));
+					helper.fireEvent(new RepliesEvent(Type.refreshed, entries));
 
 					// Execute the callback
 					if (callback != null) {
@@ -119,4 +129,56 @@ public class GwtReplies extends GwtAbstractActivities implements Stream<Activity
 		});
 	}
 
+
+	@Override
+	public void registerEventHandler(Observer<StreamEvent<ActivityEntry>> handler) {
+		helper.registerEventHandler(handler);
+	}
+
+	@Override
+	public void unregisterEventHandler(Observer<StreamEvent<ActivityEntry>> handler) {
+		helper.unregisterEventHandler(handler);
+	}
+
+	@Override
+	public boolean isReady() {
+		return isReady;
+	}
+	
+	@Override
+	public List<ActivityEntry> getItems() {
+		return entries;
+	}
+
+	public void addItem(ActivityEntry item) {
+		
+		entries.add(entries.size(), item);
+		List<ActivityEntry> items = new ArrayList<ActivityEntry>();
+		items.add(item);
+		helper.fireEvent(new RepliesEvent(Type.added, items));
+	}
+				
+	
+	public ActivityEntry getItem(String activityId){
+		for (ActivityEntry entry : entries) {
+			if (entry.getId().equals(activityId)) {
+				return entry;
+			}
+		}
+		return null;
+	}
+
+	public class RepliesEvent extends StreamEvent<ActivityEntry> {
+
+
+		public RepliesEvent(Type type, List<ActivityEntry> items) {
+			super(type, items);
+		}
+				
+				
+	}
+	
+	
+
 }
+

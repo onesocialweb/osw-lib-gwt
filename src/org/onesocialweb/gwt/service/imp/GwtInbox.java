@@ -122,14 +122,12 @@ public class GwtInbox implements Stream<ActivityEntry> {
 	}
 
 	@Override
-	public void registerEventHandler(
-			Observer<StreamEvent<ActivityEntry>> handler) {
+	public void registerEventHandler(Observer<StreamEvent<ActivityEntry>> handler) {
 		helper.registerEventHandler(handler);
 	}
 
 	@Override
-	public void unregisterEventHandler(
-			Observer<StreamEvent<ActivityEntry>> handler) {
+	public void unregisterEventHandler(Observer<StreamEvent<ActivityEntry>> handler) {
 		helper.unregisterEventHandler(handler);
 	}
 
@@ -157,8 +155,8 @@ public class GwtInbox implements Stream<ActivityEntry> {
 		helper.fireEvent(new InboxEvent(Type.refreshed, items));
 	}
 	
-	public void addCommentToItem(String parentId){
-		ActivityEntry parentActivity = getItem(parentId);
+	public void addCommentToItem(ActivityEntry comment){
+		ActivityEntry parentActivity = getItem(comment.getParentId());
 		int index= entries.indexOf(parentActivity);
 		entries.remove(index);
 		
@@ -178,8 +176,10 @@ public class GwtInbox implements Stream<ActivityEntry> {
 		entries.add(index, parentActivity);
 		
 		List<ActivityEntry> items = new ArrayList<ActivityEntry>();
-		items.add(parentActivity);
-		helper.fireEvent(new InboxEvent(Type.replied, items));	
+		items.add(parentActivity);		
+		items.add(comment);
+		
+		helper.fireEvent(new InboxEvent(Type.replied, items));			
 		
 	}
 
@@ -202,7 +202,7 @@ public class GwtInbox implements Stream<ActivityEntry> {
 		return null;
 	}
 
-	private class InboxEvent extends StreamEvent<ActivityEntry> {
+	public class InboxEvent extends StreamEvent<ActivityEntry> {
 
 
 		public InboxEvent(Type type, List<ActivityEntry> items) {

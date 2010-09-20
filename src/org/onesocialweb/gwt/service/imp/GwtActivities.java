@@ -95,9 +95,7 @@ public class GwtActivities extends GwtAbstractActivities implements Stream<Activ
 					isReady = true;
 
 					// Fire the event to the observer
-					helper
-							.fireEvent(new ActivityEvent(Type.refreshed,
-									entries));
+					helper.fireEvent(new ActivityEvent(Type.refreshed, entries));
 
 					// Execute the callback
 					if (callback != null) {
