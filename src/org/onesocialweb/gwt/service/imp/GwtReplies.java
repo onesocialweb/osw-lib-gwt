@@ -70,9 +70,10 @@ public class GwtReplies implements Stream<ActivityEntry> {
 				"http://jabber.org/protocol/pubsub");
 		IPacket itemsElement = pubsubElement.addChild("items",
 				"http://jabber.org/protocol/pubsub");
-		itemsElement.setAttribute("node", "http://onesocialweb.org/spec/1.0/replies");
-		IPacket itemElement = itemsElement.addChild(
-				"item", "http://jabber.org/protocol/pubsub");
+		
+		//itemsElement.setAttribute("node", "http://onesocialweb.org/spec/1.0/replies");
+		itemsElement.setAttribute("node", "urn:xmpp:microblog:0:replies:item="+parentId);
+		IPacket itemElement = itemsElement.addChild("item", "http://jabber.org/protocol/pubsub");
 		itemElement.setAttribute("id", parentId);
 		iq.setTo(XmppURI.uri(parentJID));
 		session.sendIQ("osw", iq, new Listener<IPacket>() {

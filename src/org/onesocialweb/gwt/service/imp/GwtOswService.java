@@ -422,11 +422,14 @@ public class GwtOswService implements OswService {
 				"http://jabber.org/protocol/pubsub");
 		IPacket publishElement = pubsubElement.addChild("publish",
 				"http://jabber.org/protocol/pubsub");
-		publishElement.setAttribute("node", "urn:xmpp:microblog:0");
-		IPacket itemElement = publishElement.addChild("item",
-				"http://jabber.org/protocol/pubsub");
-		((Packet) itemElement).addChild(new GWTPacket(
-				((ElementAdapter) element).getGwtElement()));
+		//choose a different node for comments.
+		if (activity.getParentId()!=null)
+			publishElement.setAttribute("node", "urn:xmpp:microblog:0:replies:item="+activity.getParentId());
+		else	
+			publishElement.setAttribute("node", "urn:xmpp:microblog:0");
+		
+		IPacket itemElement = publishElement.addChild("item","http://jabber.org/protocol/pubsub");
+		((Packet) itemElement).addChild(new GWTPacket(((ElementAdapter) element).getGwtElement()));
 		session.sendIQ("osw", iq, new Listener<IPacket>() {
 
 			public void onEvent(IPacket packet) {
@@ -874,8 +877,7 @@ public class GwtOswService implements OswService {
 			if (event instanceof GWTPacket) {
 				IPacket itemsPacket = event.getFirstChild("items");
 				if (itemsPacket != null
-						&& itemsPacket.hasAttribute("node",
-								"urn:xmpp:microblog:0")
+						&& itemsPacket.hasAttribute("node","urn:xmpp:microblog:0")
 						&& itemsPacket.getChildrenCount() > 0) {
 
 					// Parse the packet and store the notifications
@@ -891,20 +893,22 @@ public class GwtOswService implements OswService {
 								ActivityEntry activity = reader.readEntry(element);
 								// if the activity is already in the inbox, then it was an update...
 								ActivityEntry existingActivity=inbox.getItem(activity.getId());
-								if (existingActivity!=null) {								
-									inbox.updateItem(activity);
-									Log.debug("Updated the activity : "	+ activity.getId());
+								// big change here...
+								if (existingActivity!=null) {
+									//here!!!
+									if ((existingActivity.getRepliesLink()==null) && (activity.getRepliesLink()!=null) && (activity.getRepliesLink().getCount()==1))
+										inbox.addCommentToItem(activity);
+									else if ((existingActivity.getRepliesLink()!=null) && (activity.getRepliesLink()!=null) && (existingActivity.getRepliesLink().getCount()+1==activity.getRepliesLink().getCount())){
+										inbox.addCommentToItem(activity);										
+									}
+									else{
+										inbox.updateItem(activity);
+										Log.debug("Updated the activity : "	+ activity.getId());
+									}
 								}
-								else {	
-									if ((activity.getParentId()!=null) && (activity.getParentId().length()!=0)){
-										// TO-DO
-										Log.debug("Received a new comment : "	+ activity.getId());																		
-										inbox.addCommentToItem(activity);									
-									}
-									else { 
+								else {									
 										inbox.addItem(activity);
-										Log.debug("Received a new activity message: "	+ activity.getId());
-									}
+										Log.debug("Received a new activity message: "	+ activity.getId());									
 								}
 							}
 							else if (item.getName().equalsIgnoreCase("retract")){
@@ -922,6 +926,7 @@ public class GwtOswService implements OswService {
 						}
 					}
 				}
+				
 			}
 		}
 

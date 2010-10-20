@@ -155,30 +155,16 @@ public class GwtInbox implements Stream<ActivityEntry> {
 		helper.fireEvent(new InboxEvent(Type.refreshed, items));
 	}
 	
-	public void addCommentToItem(ActivityEntry comment){
-		ActivityEntry parentActivity = getItem(comment.getParentId());
-		int index= entries.indexOf(parentActivity);
+	public void addCommentToItem(ActivityEntry updatedActivity){
+	
+		ActivityEntry previousActivity = getItem(updatedActivity.getId());
+		int index= entries.indexOf(previousActivity);
 		entries.remove(index);
-		
-		//update the number of comments in the parent activity...
-				
-		if (parentActivity.hasReplies()){
-			AtomLink repliesLink= parentActivity.getRepliesLink();
-			int commentsCounter=repliesLink.getCount();
-			commentsCounter++;
-			parentActivity.removeLink(repliesLink);
-			repliesLink.setCount(commentsCounter);					
-			parentActivity.addLink(repliesLink);
-		} else
-		{
-			parentActivity.addLink(atomFactory.link(null, "replies", null, "application/atom+xml", 1));
-		}
-		entries.add(index, parentActivity);
+			
+		entries.add(index, updatedActivity);
 		
 		List<ActivityEntry> items = new ArrayList<ActivityEntry>();
-		items.add(parentActivity);		
-		items.add(comment);
-		
+		items.add(updatedActivity);				
 		helper.fireEvent(new InboxEvent(Type.replied, items));			
 		
 	}
