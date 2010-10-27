@@ -39,6 +39,8 @@ public interface OswService {
 			RequestCallback<Object> callback);
 
 	public void logout(RequestCallback<Object> callback);
+	
+	public void register(GwtDataForm form, RequestCallback<Object> callback);
 
 	public boolean isLoggedIn();
 
