@@ -199,7 +199,8 @@ public class GwtOswService implements OswService {
 					callback.onSuccess(null);
 					session.logout();
 				} else {
-					callback.onFailure();
+					
+					callback.onFailure();						
 					session.logout();
 				}
 			}
