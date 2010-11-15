@@ -84,7 +84,7 @@
   <dependencies>
     <dependency>
       <groupId>org.onesocialweb</groupId>
-      <artifactId>osw-lib-java</artifactId>
+      <artifactId>osw-model</artifactId>
       <version>0.7.0-SNAPSHOT</version>
     </dependency>
     <dependency>
