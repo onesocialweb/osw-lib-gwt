@@ -26,11 +26,13 @@ import java.util.Map;
 
 import org.onesocialweb.gwt.model.GwtActivityDomReader;
 import org.onesocialweb.gwt.model.GwtActivityDomWriter;
+import org.onesocialweb.gwt.model.GwtDataFormDomWriter;
 import org.onesocialweb.gwt.model.GwtRelationDomReader;
 import org.onesocialweb.gwt.model.GwtRelationDomWriter;
 import org.onesocialweb.gwt.model.GwtVCard4DomReader;
 import org.onesocialweb.gwt.model.GwtVCard4DomWriter;
 import org.onesocialweb.gwt.model.vcard4.GwtProfileFactory;
+import org.onesocialweb.gwt.service.GwtDataForm;
 import org.onesocialweb.gwt.service.OswService;
 import org.onesocialweb.gwt.service.RequestCallback;
 import org.onesocialweb.gwt.service.Roster;
@@ -165,6 +167,8 @@ public class GwtOswService implements OswService {
 			roster = new GwtRoster(rosterImpl);
 			presenceManager = new PresenceManagerImpl(session, rosterImpl);
 			session.login(XmppURI.uri(username + "@" + domain), password);
+		
+			
 		}
 	}
 
@@ -174,6 +178,34 @@ public class GwtOswService implements OswService {
 			logoutCallback = callback;
 			session.logout();
 		}
+	}
+	
+	public void register(GwtDataForm form, final RequestCallback<Object> callback){
+				
+		session.login(Session.ANONYMOUS, null);
+		
+		GwtDataFormDomWriter writer = new GwtDataFormDomWriter();
+		Document document = new DocumentAdapter(XMLParser.createDocument());
+		Element element = writer.toElement(form, document);
+		IQ iq = new IQ(IQ.Type.set);
+		IPacket query = iq.addChild("query", "jabber:iq:register");
+		((Packet) query).addChild(new GWTPacket(((ElementAdapter) element).getGwtElement()));
+		
+		session.sendIQ("osw", iq, new Listener<IPacket>() {
+
+			public void onEvent(IPacket packet) {
+				// Check if no error
+				if (IQ.isSuccess(packet)) {
+					callback.onSuccess(null);
+					session.logout();
+				} else {
+					
+					callback.onFailure();						
+					session.logout();
+				}
+			}
+		});
+		
 	}
 
 	@Override
