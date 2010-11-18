@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.1//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.1/distro-source/core/src/gwt-module.dtd">
+<module rename-to='OswCore'>
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User'/>
+  <inherits name='com.google.gwt.xml.XML'/>
+  <inherits name='org.w3c.Dom'/>
+  <inherits name="org.onesocialweb.Model"/>
+  <inherits name='com.calclab.emite.core.EmiteCore'/>
+  <inherits name='com.calclab.emite.im.EmiteIM'/>
+  <inherits name='java.Util'/>
+  
+  <!--  Additional settings -->
+  <source path="gwt/" />
+
+  <!--  Settings for gwt-log									  -->
+  <set-property name="log_level" value="DEBUG"/>
+  <set-property name="log_DivLogger" value="ENABLED" />
+    	
+</module>
