@@ -32,6 +32,7 @@ import org.onesocialweb.gwt.model.GwtRelationDomWriter;
 import org.onesocialweb.gwt.model.GwtVCard4DomReader;
 import org.onesocialweb.gwt.model.GwtVCard4DomWriter;
 import org.onesocialweb.gwt.model.vcard4.GwtProfileFactory;
+import org.onesocialweb.gwt.service.ERequestCallback;
 import org.onesocialweb.gwt.service.GwtDataForm;
 import org.onesocialweb.gwt.service.OswService;
 import org.onesocialweb.gwt.service.RequestCallback;
@@ -180,7 +181,7 @@ public class GwtOswService implements OswService {
 		}
 	}
 	
-	public void register(GwtDataForm form, final RequestCallback<Object> callback){
+	public void register(GwtDataForm form, final ERequestCallback<Object> callback){
 				
 		session.login(Session.ANONYMOUS, null);
 		
@@ -198,9 +199,9 @@ public class GwtOswService implements OswService {
 				if (IQ.isSuccess(packet)) {
 					callback.onSuccess(null);
 					session.logout();
-				} else {
-					
-					callback.onFailure();						
+				} else {					
+					String message =extractError(packet);
+					callback.onFailure(message);						
 					session.logout();
 				}
 			}
@@ -1016,6 +1017,16 @@ public class GwtOswService implements OswService {
 				}
 			}
 		}
+	}
+	
+	private String extractError(IPacket iq){
+		IPacket error =iq.getFirstChild("error");
+		if (error!=null) {
+			IPacket text =  error.getFirstChild("text");
+			if (text!=null)
+				return text.getText();
+		}
+		return null;
 	}
 
 	// Private constructor to enforce the singleton

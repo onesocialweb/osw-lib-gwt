@@ -40,7 +40,7 @@ public interface OswService {
 
 	public void logout(RequestCallback<Object> callback);
 	
-	public void register(GwtDataForm form, RequestCallback<Object> callback);
+	public void register(GwtDataForm form, ERequestCallback<Object> callback);
 
 	public boolean isLoggedIn();
 
