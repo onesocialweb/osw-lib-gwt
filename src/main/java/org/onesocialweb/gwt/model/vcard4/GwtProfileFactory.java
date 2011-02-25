@@ -21,9 +21,11 @@ import org.onesocialweb.model.vcard4.DefaultEmailField;
 import org.onesocialweb.model.vcard4.DefaultFullNameField;
 import org.onesocialweb.model.vcard4.DefaultGenderField;
 import org.onesocialweb.model.vcard4.DefaultNameField;
+import org.onesocialweb.model.vcard4.DefaultNicknameField;
 import org.onesocialweb.model.vcard4.DefaultNoteField;
 import org.onesocialweb.model.vcard4.DefaultPhotoField;
 import org.onesocialweb.model.vcard4.DefaultProfile;
+import org.onesocialweb.model.vcard4.DefaultSourceField;
 import org.onesocialweb.model.vcard4.DefaultTelField;
 import org.onesocialweb.model.vcard4.DefaultTimeZoneField;
 import org.onesocialweb.model.vcard4.DefaultURLField;
@@ -31,9 +33,11 @@ import org.onesocialweb.model.vcard4.EmailField;
 import org.onesocialweb.model.vcard4.FullNameField;
 import org.onesocialweb.model.vcard4.GenderField;
 import org.onesocialweb.model.vcard4.NameField;
+import org.onesocialweb.model.vcard4.NicknameField;
 import org.onesocialweb.model.vcard4.NoteField;
 import org.onesocialweb.model.vcard4.PhotoField;
 import org.onesocialweb.model.vcard4.Profile;
+import org.onesocialweb.model.vcard4.SourceField;
 import org.onesocialweb.model.vcard4.TelField;
 import org.onesocialweb.model.vcard4.TimeZoneField;
 import org.onesocialweb.model.vcard4.URLField;
@@ -94,6 +98,16 @@ public class GwtProfileFactory extends VCard4Factory {
 	@Override
 	public URLField url() {
 		return new DefaultURLField();
+	}
+	
+	@Override
+	public NicknameField nickname() {
+		return new DefaultNicknameField();
+	}
+	
+	@Override
+	public SourceField source() {
+		return new DefaultSourceField();
 	}
 
 }
