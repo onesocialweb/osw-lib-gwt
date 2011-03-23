@@ -61,6 +61,8 @@ public interface OswService {
 	public void update(ActivityEntry entry, RequestCallback<ActivityEntry> callback);
 
 	public void subscribe(String jid, RequestCallback<Object> callback);
+	
+	public void oStatusSubscribe(String username, String feed, RequestCallback<Object> callback);
 
 	public void unsubscribe(String jid, RequestCallback<Object> callback);
 

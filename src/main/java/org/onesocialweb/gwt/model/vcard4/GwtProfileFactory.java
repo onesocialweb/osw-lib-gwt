@@ -29,6 +29,7 @@ import org.onesocialweb.model.vcard4.DefaultSourceField;
 import org.onesocialweb.model.vcard4.DefaultTelField;
 import org.onesocialweb.model.vcard4.DefaultTimeZoneField;
 import org.onesocialweb.model.vcard4.DefaultURLField;
+import org.onesocialweb.model.vcard4.DefaultXFeedField;
 import org.onesocialweb.model.vcard4.EmailField;
 import org.onesocialweb.model.vcard4.FullNameField;
 import org.onesocialweb.model.vcard4.GenderField;
@@ -42,6 +43,7 @@ import org.onesocialweb.model.vcard4.TelField;
 import org.onesocialweb.model.vcard4.TimeZoneField;
 import org.onesocialweb.model.vcard4.URLField;
 import org.onesocialweb.model.vcard4.VCard4Factory;
+import org.onesocialweb.model.vcard4.XFeedField;
 
 public class GwtProfileFactory extends VCard4Factory {
 
@@ -108,6 +110,11 @@ public class GwtProfileFactory extends VCard4Factory {
 	@Override
 	public SourceField source() {
 		return new DefaultSourceField();
+	}
+	
+	@Override
+	public XFeedField feed() {
+		return new DefaultXFeedField();
 	}
 
 }

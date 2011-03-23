@@ -580,6 +580,51 @@ public class GwtOswService implements OswService {
 			}
 		});
 	}
+	
+	@Override
+	public void oStatusSubscribe(final String username, String feed,
+			final RequestCallback<Object> callback) {
+	
+
+		// Process the subscription request
+		IQ iq = new IQ(IQ.Type.set);
+		iq.setTo(XmppURI.jid(username));
+		IPacket pubsubPacket = iq.addChild("pubsub",
+				"http://jabber.org/protocol/pubsub");
+		IPacket subscribePacket = pubsubPacket.addChild("subscribe",
+				"http://jabber.org/protocol/pubsub");
+		subscribePacket.setAttribute("node", feed);
+		subscribePacket.setAttribute("jid", getUserBareJID());
+		session.sendIQ("osw", iq, new Listener<IPacket>() {
+			@SuppressWarnings("unchecked")
+			public void onEvent(IPacket packet) {
+				// Check if no error
+				if (IQ.isSuccess(packet)) {
+					// This call was successfull
+					callback.onSuccess(null);
+					// Update the subscription cache
+					if (cache.containsKey("subscriptions_" + getUserBareJID())) {
+						List<String> subscriptions = (List<String>) cache
+								.get("subscriptions_" + getUserBareJID());
+						if (!subscriptions.contains(username)) {
+							subscriptions.add(username);
+						}
+					}
+					// Update the subscribers cache
+					if (cache.containsKey("subscribers_" + username)) {
+						List<String> subscribers = (List<String>) cache
+								.get("subscribers_" + username);
+						if (!subscribers.contains(getUserBareJID())) {
+							subscribers.add(getUserBareJID());
+						}
+					}
+
+				} else {
+					callback.onFailure();
+				}
+			}
+		});
+	}
 
 	@Override
 	public void unsubscribe(final String jid,
