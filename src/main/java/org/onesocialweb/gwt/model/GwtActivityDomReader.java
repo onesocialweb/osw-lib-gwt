@@ -20,6 +20,8 @@ import java.util.Date;
 
 import org.onesocialweb.model.activity.ActivityFactory;
 import org.onesocialweb.model.activity.DefaultActivityFactory;
+import org.onesocialweb.model.atom.AtomFactory;
+import org.onesocialweb.model.atom.DefaultAtomFactory;
 import org.onesocialweb.xml.dom.AclDomReader;
 import org.onesocialweb.xml.dom.ActivityDomReader;
 import org.onesocialweb.xml.dom.AtomDomReader;
@@ -34,6 +36,11 @@ public class GwtActivityDomReader extends ActivityDomReader {
 	@Override
 	protected ActivityFactory getActivityFactory() {
 		return new DefaultActivityFactory();
+	}
+	
+	@Override
+	protected AtomFactory getAtomFactory() {
+		return new DefaultAtomFactory();
 	}
 
 	@Override

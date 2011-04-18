@@ -19,16 +19,12 @@
  */
 package org.onesocialweb.gwt.service.imp;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.onesocialweb.gwt.model.GwtActivityDomReader;
 import org.onesocialweb.gwt.service.RequestCallback;
 import org.onesocialweb.gwt.service.Stream;
-import org.onesocialweb.gwt.service.StreamEvent;
 import org.onesocialweb.gwt.service.StreamEvent.Type;
-import org.onesocialweb.gwt.util.ObservableHelper;
-import org.onesocialweb.gwt.util.Observer;
 import org.onesocialweb.gwt.xml.ElementAdapter;
 import org.onesocialweb.model.activity.ActivityEntry;
 import org.onesocialweb.xml.dom.ActivityDomReader;
@@ -36,10 +32,8 @@ import org.w3c.dom.Element;
 
 import com.calclab.emite.core.client.packet.IPacket;
 import com.calclab.emite.core.client.packet.gwt.GWTPacket;
-import com.calclab.emite.core.client.xmpp.session.Session;
 import com.calclab.emite.core.client.xmpp.stanzas.IQ;
 import com.calclab.emite.core.client.xmpp.stanzas.XmppURI;
-import com.calclab.suco.client.Suco;
 import com.calclab.suco.client.events.Listener;
 
 public class GwtActivities extends GwtAbstractActivities implements Stream<ActivityEntry> {

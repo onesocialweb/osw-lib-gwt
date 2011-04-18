@@ -26,6 +26,7 @@ import org.onesocialweb.model.acl.AclFactory;
 import org.onesocialweb.model.activity.ActivityEntry;
 import org.onesocialweb.model.activity.ActivityFactory;
 import org.onesocialweb.model.atom.AtomFactory;
+import org.onesocialweb.model.cache.DomainCache;
 import org.onesocialweb.model.relation.Relation;
 import org.onesocialweb.model.relation.RelationFactory;
 import org.onesocialweb.model.vcard4.Profile;
@@ -51,6 +52,8 @@ public interface OswService {
 	public void setProfile(Profile profile, RequestCallback<Object> callback);
 
 	public Roster getRoster();
+	
+	public void getDomainCache(final RequestCallback<List<DomainCache>> callback);
 
 	public Stream<ActivityEntry> getActivities(String jid);
 
@@ -65,6 +68,9 @@ public interface OswService {
 	public void oStatusSubscribe(String username, String feed, RequestCallback<Object> callback);
 
 	public void unsubscribe(String jid, RequestCallback<Object> callback);
+	
+	public void oStatusUnsubscribe(final String jid,String feed,
+			final RequestCallback<Object> callback);
 
 	public void getRelations(String jid,
 			RequestCallback<List<Relation>> callback);

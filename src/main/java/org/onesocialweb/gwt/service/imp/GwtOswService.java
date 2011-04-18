@@ -51,6 +51,7 @@ import org.onesocialweb.model.activity.ActivityFactory;
 import org.onesocialweb.model.activity.DefaultActivityFactory;
 import org.onesocialweb.model.atom.AtomFactory;
 import org.onesocialweb.model.atom.DefaultAtomFactory;
+import org.onesocialweb.model.cache.DomainCache;
 import org.onesocialweb.model.relation.DefaultRelationFactory;
 import org.onesocialweb.model.relation.Relation;
 import org.onesocialweb.model.relation.RelationFactory;
@@ -58,6 +59,7 @@ import org.onesocialweb.model.vcard4.Profile;
 import org.onesocialweb.model.vcard4.VCard4Factory;
 import org.onesocialweb.xml.dom.ActivityDomReader;
 import org.onesocialweb.xml.dom.ActivityDomWriter;
+import org.onesocialweb.xml.dom.CacheDomReader;
 import org.onesocialweb.xml.dom.RelationDomReader;
 import org.onesocialweb.xml.dom.RelationDomWriter;
 import org.onesocialweb.xml.dom.VCard4DomReader;
@@ -218,6 +220,51 @@ public class GwtOswService implements OswService {
 	public Stream<ActivityEntry> getInbox() {
 		return inbox;
 	}
+	
+	@Override
+	public void getDomainCache(final RequestCallback<List<DomainCache>> callback){
+		IQ iq = new IQ(IQ.Type.get);
+		iq.addQuery("http://onesocialweb.org/extensions/1.0/ostatus#cache");
+		iq.setTo(XmppURI.jid(getUserBareJID()));
+		session.sendIQ("osw", iq, new Listener<IPacket>() {
+
+			public void onEvent(IPacket packet) {
+				if (IQ.isSuccess(packet)) {
+					final IPacket query = packet.getFirstChild("query");
+					List<DomainCache> cache = new ArrayList<DomainCache>();
+					
+					if (query != null && query.getChildrenCount() > 0) {
+						// Parse the packet and return the cache
+						List<IPacket> items = (List<IPacket>)query.getChildren();
+						for (IPacket item: items){												
+							if (item instanceof GWTPacket) {
+								GWTPacket i_packet = (GWTPacket) item;
+								Element element = new ElementAdapter(i_packet
+										.getElement());
+								CacheDomReader reader = new CacheDomReader();
+								cache.add(reader.readCache(element));
+							}
+						}
+					}
+
+					// Execute the callback
+					if (callback != null) {
+						callback.onSuccess(cache);
+						return;
+					}
+
+					// Done
+					return;
+				}
+
+				// If we are here, there was an error
+				if (callback != null) {
+					callback.onFailure();
+				}
+				
+			}
+		});
+	}
 
 	@Override
 	public void getProfile(final String jid,
@@ -342,7 +389,8 @@ public class GwtOswService implements OswService {
 	@Override
 	public Stream<ActivityEntry> getReplies(ActivityEntry parentActivity) {
 
-		GwtReplies activities = new GwtReplies(parentActivity.getId(), parentActivity.getActor().getUri());		
+		String author = parentActivity.hasAuthors() ? parentActivity.getAuthors().get(0).getUri() : parentActivity.getActor().getUri();
+		GwtReplies activities = new GwtReplies(parentActivity.getId(), author);		
 		activities.refresh(null);
 		return activities;
 	}
@@ -619,6 +667,47 @@ public class GwtOswService implements OswService {
 						}
 					}
 
+				} else {
+					callback.onFailure();
+				}
+			}
+		});
+	}
+	
+	@Override
+	public void oStatusUnsubscribe(final String username,String feed,
+			final RequestCallback<Object> callback) {
+		// Effectively unsubscribe from the node
+		IQ iq = new IQ(IQ.Type.set);
+		iq.setTo(XmppURI.jid(username));
+		IPacket pubsubPacket = iq.addChild("pubsub",
+				"http://jabber.org/protocol/pubsub");
+		IPacket unsubscribePacket = pubsubPacket.addChild("unsubscribe",
+				"http://jabber.org/protocol/pubsub");
+		unsubscribePacket.setAttribute("node", feed);
+		unsubscribePacket.setAttribute("jid", getUserBareJID());
+		session.sendIQ("osw", iq, new Listener<IPacket>() {
+			@SuppressWarnings("unchecked")
+			public void onEvent(IPacket packet) {
+				// Check if no error
+				if (IQ.isSuccess(packet)) {
+					callback.onSuccess(null);
+					// Update the subscription cache
+					if (cache.containsKey("subscriptions_" + getUserBareJID())) {
+						List<String> subscriptions = (List<String>) cache
+								.get("subscriptions_" + getUserBareJID());
+						if (subscriptions.contains(username)) {
+							subscriptions.remove(username);
+						}
+					}
+					// Update the subscribers cache
+					if (cache.containsKey("subscribers_" + username)) {
+						List<String> subscribers = (List<String>) cache
+								.get("subscribers_" + getUserBareJID());
+						if (subscribers.contains(getUserBareJID())) {
+							subscribers.remove(getUserBareJID());
+						}
+					}
 				} else {
 					callback.onFailure();
 				}
